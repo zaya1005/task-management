@@ -1,0 +1,41 @@
+<div class="min-h-screen flex items-center justify-center bg-pink-50 p-4">
+  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-pink-100">
+    
+    <h2 class="text-3xl font-bold text-pink-600 text-center mb-6">Portal Login</h2>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="space-y-5">
+      
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-bold text-gray-700">Enter Email</label>
+        
+        <input type="email"
+               formControlName="email" 
+               class="!border !border-gray-400 w-full p-3 text-base text-gray-800 bg-white rounded-xl focus:outline-none focus:!border-pink-500 transition-all placeholder:text-gray-400 shadow-sm" 
+               placeholder="Enter email"/>
+        
+        <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500 mt-1 text-xs font-medium">
+          Invalid Email
+        </small>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-bold text-gray-700">Enter Password</label>
+        
+        <input type="password" 
+               formControlName="password" 
+               class="!border !border-gray-400 w-full p-3 text-base text-gray-800 bg-white rounded-xl focus:outline-none focus:!border-pink-500 transition-all placeholder:text-gray-400 shadow-sm" 
+               placeholder="Min 6 chars"/>
+        
+        <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500 mt-1 text-xs font-medium">
+          Min 6 characters required
+        </small>
+      </div>
+
+      <button type="submit" 
+              class="w-full p-3.5 bg-pink-600 hover:bg-pink-700 text-white font-bold border-none rounded-xl cursor-pointer shadow-md transition-all active:scale-[0.98] text-center text-base">
+        Sign In
+      </button>
+      
+    </form>
+  </div>
+</div>

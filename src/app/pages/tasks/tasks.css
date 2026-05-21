@@ -1,0 +1,14 @@
+
+::v-deep .p-datatable {
+    width: 100% !important;
+}
+
+::v-deep .p-datatable-wrapper {
+    width: 100% !important;
+    overflow-x: auto;
+}
+
+::v-deep table {
+    width: 100% !important;
+    table-layout: fixed; 
+}

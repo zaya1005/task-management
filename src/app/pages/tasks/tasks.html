@@ -1,0 +1,141 @@
+<div class="min-h-screen p-6 transition-colors duration-300 w-full"
+     [ngClass]="isDarkMode ? 'bg-gray-950 text-gray-100' : 'bg-pink-50 text-gray-800'">
+  <div class="max-w-7xl mx-auto w-full">
+    
+    <div class="flex justify-between items-center mb-6 w-full">
+      <div class="flex gap-4 items-center">
+        <button routerLink="/dashboard" class="bg-gray-700 text-white px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-gray-800 transition-colors">← Back</button>
+        <h2 class="text-2xl font-bold transition-colors" [ngClass]="isDarkMode ? 'text-pink-400' : 'text-pink-600'">Employee Task Manager</h2>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <button (click)="toggleDarkMode()" 
+                class="p-2 rounded-lg border font-bold cursor-pointer transition-all text-base shadow-sm active:scale-95"
+                [ngClass]="isDarkMode ? 'bg-gray-900 border-gray-700 text-yellow-400' : 'bg-white border-gray-300 text-gray-700'">
+          {{ isDarkMode ? '☀️ Light' : '🌙 Dark' }}
+        </button>
+        <button (click)="showModal=true; isEdit=false;" class="bg-pink-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-pink-700 transition-colors font-bold shadow-md">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="p-6 rounded-xl shadow border transition-colors w-full"
+         [ngClass]="isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-pink-100'">
+      
+      <div class="flex flex-col sm:flex-row gap-4 mb-5 w-full">
+        <div class="flex-1">
+          <input type="text" 
+                 placeholder="🔍 Search by name..." 
+                 (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                 class="w-full p-3 border rounded-lg focus:outline-none focus:border-pink-500 text-sm shadow-sm transition-colors"
+                 [ngClass]="isDarkMode ? 'border-gray-700 bg-gray-800 text-white placeholder:text-gray-500' : 'border-gray-300 bg-gray-50/50 text-gray-800 placeholder:text-gray-400'" />
+        </div>
+        
+        <div class="w-full sm:w-56">
+          <select (change)="dt.filter($any($event.target).value, 'priority', 'equals')" 
+                  class="w-full p-3 border rounded-lg focus:outline-none focus:border-pink-500 text-sm cursor-pointer font-medium shadow-sm transition-colors"
+                  [ngClass]="isDarkMode ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-300 bg-white text-gray-700'">
+            <option value="">Filter</option>
+            <option *ngFor="let p of priorities" [value]="p.value">🎯 {{p.label}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="w-full overflow-x-auto">
+        <p-table #dt 
+          [value]="tasks" 
+          [paginator]="true" 
+          [rows]="5" 
+          [globalFilterFields]="['taskName']" 
+          styleClass="p-datatable-striped w-full"
+          [tableStyle]="{'min-width': '100%', 'width': '100%'}">
+          
+          <ng-template pTemplate="header">
+            <tr class="border-b transition-colors" [ngClass]="isDarkMode ? 'bg-gray-950 text-pink-400 border-gray-800' : 'bg-pink-50 text-pink-700 border-gray-200'">
+              <th class="p-4 text-left w-[45%]">Name</th>
+              <th class="p-4 text-left w-[18%]">Priority</th>
+              <th class="p-4 text-left w-[18%]">Status</th>
+              <th class="p-4 text-center w-[19%]">Actions</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-t>
+            <tr class="border-b transition-colors" [ngClass]="isDarkMode ? 'border-gray-800/50 hover:bg-gray-800/30 text-gray-300' : 'border-gray-100 hover:bg-pink-50/20 text-gray-700'">
+              <td class="p-4 font-semibold break-words whitespace-normal">{{t.taskName}}</td>
+              <td class="p-4">
+                <span [ngClass]="{
+                        'text-red-500 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40': t.priority === 'High', 
+                        'text-blue-500 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40': t.priority === 'Medium', 
+                        'text-gray-500 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700': t.priority === 'Low'
+                      }" 
+                      class="text-xs font-bold inline-block text-center min-w-[70px] px-2.5 py-1 rounded-md">
+                  {{t.priority}}
+                </span>
+              </td>
+              <td class="p-4 text-sm font-medium">{{t.status}}</td>
+              <td class="p-4 text-center whitespace-nowrap">
+                <button (click)="openEdit(t)" class="text-blue-500 mr-4 cursor-pointer hover:text-blue-700 font-semibold transition-colors">🖊️</button>
+                <button (click)="delete(t.id)" class="text-red-500 cursor-pointer hover:text-red-700 font-semibold transition-colors">🗑️</button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog 
+    [(visible)]="showModal" 
+    [header]="isEdit ? '✏️ Edit Task' : '🚀 New Task'" 
+    [modal]="true" 
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '480px', 'border-radius': '16px' }" 
+    [styleClass]="isDarkMode ? 'dark-dialog border border-gray-800 overflow-hidden shadow-2xl' : 'light-dialog border border-gray-100 overflow-hidden shadow-2xl'">
+    
+    <div class="p-6 rounded-b-2xl flex flex-col gap-5 transition-colors" [ngClass]="isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-800'">
+      
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-bold" [ngClass]="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Task Name</label>
+        <input type="text"
+               [(ngModel)]="newTask.taskName" 
+               placeholder="Enter task title" 
+               class="!border p-3 rounded-xl w-full text-base focus:outline-none focus:!border-pink-500 transition-all shadow-sm"
+               [ngClass]="isDarkMode ? '!border-gray-700 bg-gray-800 text-white placeholder:text-gray-500' : '!border-gray-400 bg-white text-gray-800 placeholder:text-gray-400'" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-bold" [ngClass]="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Priority</label>
+        <select [(ngModel)]="newTask.priority" 
+                class="!border p-3 rounded-xl w-full text-base focus:outline-none focus:!border-pink-500 transition-all shadow-sm cursor-pointer"
+                [ngClass]="isDarkMode ? '!border-gray-700 bg-gray-800 text-white' : '!border-gray-400 bg-white text-gray-800'">
+          <option value="" disabled selected hidden>Select Priority</option>
+          <option *ngFor="let p of priorities" [value]="p.value">{{p.label}}</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-bold" [ngClass]="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Status</label>
+        <select [(ngModel)]="newTask.status" 
+                class="!border p-3 rounded-xl w-full text-base focus:outline-none focus:!border-pink-500 transition-all shadow-sm cursor-pointer"
+                [ngClass]="isDarkMode ? '!border-gray-700 bg-gray-800 text-white' : '!border-gray-400 bg-white text-gray-800'">
+          <option value="" disabled selected hidden>Select Status</option>
+          <option *ngFor="let s of statuses" [value]="s.value">{{s.label}}</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-bold" [ngClass]="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Due Date</label>
+        <input type="date" 
+               [(ngModel)]="newTask.duedate" 
+               class="!border p-3 rounded-xl w-full text-base focus:outline-none focus:!border-pink-500 transition-all shadow-sm"
+               [ngClass]="isDarkMode ? '!border-gray-700 bg-gray-800 text-white' : '!border-gray-400 bg-white text-gray-800'" />
+      </div>
+
+      <button (click)="save()" 
+              class="w-full mt-2 p-3.5 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-xl border-none shadow-md transition-all cursor-pointer active:scale-[0.99] text-center text-base">
+        Save Task Configuration
+      </button>
+    </div>
+  </p-dialog>
+</div>
