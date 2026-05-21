@@ -33,8 +33,6 @@ export class Tasks implements OnInit {
   isEdit = false;
   editId: any = null;
   isDarkMode = false;
-  
-  // 🔗 Live Dummy API URL
   private apiUrl = 'https://jsonplaceholder.typicode.com/todos'; 
   
   newTask: any = { taskName: '', description: '', priority: 'Medium', duedate: '', status: 'Pending' };
@@ -53,7 +51,6 @@ export class Tasks implements OnInit {
     private http: HttpClient, 
     private cdr: ChangeDetectorRef
   ) {
-    // 🌟 SSR safe block: Yeh sirf browser par chalega, Node server par nahi!
     afterNextRender(() => {
       const savedTheme = localStorage.getItem('theme');
       this.isDarkMode = savedTheme === 'dark';
@@ -68,25 +65,20 @@ export class Tasks implements OnInit {
   fetchTasksFromApi() {
     this.http.get<any[]>(this.apiUrl).subscribe({
       next: (data) => {
-        // 🎲 Priorities ki list random generation ke liye
         const priorityOptions = ['High', 'Medium', 'Low'];
 
         this.tasks = data.map(item => {
-          // Har task ke liye ek random index select hoga (0, 1, ya 2)
           const randomPriority = priorityOptions[Math.floor(Math.random() * priorityOptions.length)];
 
           return {
             id: item.id,
             taskName: item.title,
-            // Agar API me priority hai toh wo, nahi toh hamari random priority set hogi
             priority: item.priority || randomPriority, 
             status: item.completed ? 'Completed' : 'Pending',
             description: item.description || 'Production Ingested Assignment Task',
             duedate: item.duedate || '2026-05-25'
           };
         });
-        
-        // Data aane ke baad UI ko refresh karne ke liye trigger
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -112,7 +104,6 @@ export class Tasks implements OnInit {
     this.taskService.updateTasks(list);
     this.showModal = false;
     
-    // Form ko wapas reset karna default values par
     this.newTask = { taskName: '', description: '', priority: 'Medium', duedate: '', status: 'Pending' };
     this.cdr.detectChanges();
   }
